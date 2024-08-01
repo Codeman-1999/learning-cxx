@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
         auto t0 = Tensor4D(s0, d0);
         auto t1 = Tensor4D(s1, d1);
         t0 += t1;
-        for (auto i = 0u; i < sizeof(d0) / sizeof(*d0); ++i) {
+        for (auto i = 0u; i < sizeof(d0) / sizeof(*d0); ++ i) {
             ASSERT(t0.data[i] == 7.f, "Every element of t0 should be 7 after adding t1 to it.");
         }
     }
