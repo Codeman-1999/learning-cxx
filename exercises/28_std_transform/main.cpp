@@ -1,6 +1,6 @@
-﻿﻿#include "../exercise.h"
+﻿#include "../exercise.h"
 #include <algorithm>
-#include <string>
+#include <cstring>
 #include <vector>
 
 // READ: `std::transform` <https://zh.cppreference.com/w/cpp/algorithm/transform>

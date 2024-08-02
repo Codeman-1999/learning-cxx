@@ -1,5 +1,5 @@
-﻿﻿#include "../exercise.h"
-#include <string>
+﻿#include "../exercise.h"
+#include <cstring>
 
 // READ: 字符串 <https://zh.cppreference.com/w/cpp/string/basic_string>
 
