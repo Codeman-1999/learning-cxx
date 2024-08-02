@@ -11,12 +11,13 @@ struct Tensor {
     Tensor(unsigned int const shape_[N]) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
-        for (unsigned int i = 0; i < N; i++) {
-            shape[i] = shape_[i];
-            size *= shape_[i];
-        }
+		memcpy(shape, shape_, N*sizeof(unsigned int));
+		for(int i=0;i<N;i++){
+
+			size*=shape_[i];
+		}
         data = new T[size];
-        ::memset(data, 0, size * sizeof(T));
+        std::memset(data, 0, size * sizeof(T));
     }
     ~Tensor() {
         delete[] data;
@@ -36,18 +37,20 @@ struct Tensor {
 private:
     unsigned int data_index(unsigned int const indices[N]) const {
         unsigned int index = 0;
-        unsigned int m = 1;
-        for (unsigned int i = 0; i < N; ++i) m *= shape[i];
-        for (unsigned int i = 0; i < N; ++i) {
-            ASSERT(indices[i] < shape[i], "15");
-            // TODO: 计算 index
-            m /= shape[i];
-            index += indices[i] * m;
+        for (unsigned int i = 0; i < N; i++) {
+			printf("i = %u,N = %u\n",i,N);
+            ASSERT(indices[i] < shape[i],"exceeded bound");
+            // // TODO: 计算 index
+			int temp = indices[i];
+			for(unsigned int j=i+1;j<N;j++){
+				temp *= indices[j];
+			}
+			index += temp;
         }
-
-        return index;
+		return index;
     }
 };
+
 
 // ---- 不要修改以下代码 ----
 int main(int argc, char **argv) {

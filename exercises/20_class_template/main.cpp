@@ -1,6 +1,5 @@
 ﻿﻿#include "../exercise.h"
-#include <cstring>
-
+#include"cstring"
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
 template<class T>
@@ -9,14 +8,11 @@ struct Tensor4D {
     T *data;
 
     Tensor4D(unsigned int const shape_[4], T const *data_) {
-        unsigned int size = 1;
+        unsigned int size = shape_[0]*shape_[1]*shape_[2]*shape_[3];
         // TODO: 填入正确的 shape 并计算 size
-        for (int i = 0; i < 4; i++) {
-            shape[i] = shape_[i];
-            size *= shape_[i];
-        }
         data = new T[size];
-        ::memcpy(data, data_, size * sizeof(T));
+        memcpy(data, data_, size * sizeof(T));
+		memcpy(shape, shape_, 4 * sizeof(int));
     }
     ~Tensor4D() {
         delete[] data;
@@ -32,31 +28,29 @@ struct Tensor4D {
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
-        int idx = 0;
-        while (idx < 4 && shape[idx] == others.shape[idx]) idx++;
-
-        int a[4] = {1, shape[3],
-                    shape[3] * shape[2], shape[3] * shape[2] * shape[1]};
-        int b[4] = {1, others.shape[3],
-                    others.shape[3] * others.shape[2], others.shape[3] * others.shape[2] * others.shape[1]};
-
-        int i2 = 0, j2 = 0, k2 = 0, l2 = 0;
-        for (int i = 0; i < shape[0]; i++) {
-            i2 = others.shape[0] == 1 ? 0 : i;
-            for (int j = 0; j < shape[1]; j++) {
-                j2 = others.shape[1] == 1 ? 0 : j;
-                for (int k = 0; k < shape[2]; k++) {
-                    k2 = others.shape[2] == 1 ? 0 : k;
-                    for (int l = 0; l < shape[3]; l++) {
-                        l2 = others.shape[3] == 1 ? 0 : l;
-                        data[i * a[3] + j * a[2] + k * a[1] + l] +=
-                            others.data[i2 * b[3] + j2 * b[2] + k2 * b[1] + l2];
-                    }
-                }
-            }
-        }
-
+        //TODO: 实现单向广播的加法
+		for(int i=0;i<shape[0];i++){
+			// printf("start i\n");
+			int i_o = (others.shape[0]==1)?0:i;
+			for(int j=0;j<shape[1];j++){
+				// printf("start j\n");
+				int j_o = (others.shape[1]==1)?0:j;
+				for(int k=0;k<shape[2];k++){
+					// printf("start k\n");
+					int k_o = (others.shape[2]==1)?0:k;
+					for(int z=0;z<shape[3];z++){
+						// printf("start l\n");
+						// printf("%d %d %d %d\n",i,j,k,z);
+						int z_o = (others.shape[3]==1)?0:z;
+						int index = i*shape[1]*shape[2]*shape[3]+j*shape[2]*shape[3]+k*shape[3]+z;
+						int index_o = i_o*others.shape[1]*others.shape[2]*others.shape[3]+j_o*others.shape[2]*others.shape[3]+k_o*others.shape[3]+z_o;
+						// printf("T data(%d,%d,%d,%d) is %d\n",i,j,k,z,data[index]);
+						// printf("O data(%d,%d,%d,%d) is %d\n",i_o,j_o,k_o,z_o,others.data[index_o]);
+						data[index] += others.data[index_o];
+					}
+				}
+			}
+		}
         return *this;
     }
 };
@@ -75,10 +69,12 @@ int main(int argc, char **argv) {
             17, 18, 19, 20,
             21, 22, 23, 24};
         // clang-format on
+
         auto t0 = Tensor4D(shape, data);
         auto t1 = Tensor4D(shape, data);
         t0 += t1;
-        for (unsigned int i = 0; i < sizeof(data) / sizeof(int); i++) {
+        for (auto i = 0u; i < sizeof(data) / sizeof(*data); ++i) {
+			// printf("data %d is %d",i,t0.data[i]);
             ASSERT(t0.data[i] == data[i] * 2, "Tensor doubled by plus its self.");
         }
     }
@@ -109,7 +105,7 @@ int main(int argc, char **argv) {
         auto t0 = Tensor4D(s0, d0);
         auto t1 = Tensor4D(s1, d1);
         t0 += t1;
-        for (unsigned int i = 0; i < sizeof(d0) / sizeof(float); i++) {
+        for (auto i = 0u; i < sizeof(d0) / sizeof(*d0); ++i) {
             ASSERT(t0.data[i] == 7.f, "Every element of t0 should be 7 after adding t1 to it.");
         }
     }
@@ -131,7 +127,7 @@ int main(int argc, char **argv) {
         auto t0 = Tensor4D(s0, d0);
         auto t1 = Tensor4D(s1, d1);
         t0 += t1;
-        for (unsigned int i = 0; i < sizeof(d0) / sizeof(double); i++) {
+        for (auto i = 0u; i < sizeof(d0) / sizeof(*d0); ++i) {
             ASSERT(t0.data[i] == d0[i] + 1, "Every element of t0 should be incremented by 1 after adding t1 to it.");
         }
     }
